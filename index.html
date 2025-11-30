@@ -19,7 +19,16 @@
         </header>
 
         <div class="search-box">
-            <input type="text" id="searchInput" placeholder="🔍 Rechercher une propriété CSS...">
+            <div class="search-controls">
+                <input type="text" id="searchInput" placeholder="🔍 Rechercher une propriété CSS...">
+                <select id="filterSelect" class="filter-select">
+                    <option value="all">Tous les modules</option>
+                    <option value="status:REC">Statut: REC</option>
+                    <option value="status:CR">Statut: CR</option>
+                    <option value="status:WD">Statut: WD</option>
+                    <option value="status:FPWD">Statut: FPWD</option>
+                </select>
+            </div>
         </div>
 
         <div class="content" id="content">

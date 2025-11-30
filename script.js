@@ -569,17 +569,40 @@ function renderModules(modules) {
 // Fonction de recherche
 function searchProperties() {
     const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+    const filterValue = document.getElementById('filterSelect').value;
     const modules = document.querySelectorAll('.module');
     
-    modules.forEach(module => {
+    modules.forEach((module, index) => {
         const rows = module.querySelectorAll('tbody tr');
         let hasVisibleRow = false;
+        
+        // Vérifier le filtre de module
+        let matchesModuleFilter = true;
+        if (filterValue.startsWith('module:')) {
+            const moduleIndex = parseInt(filterValue.split(':')[1]);
+            matchesModuleFilter = index === moduleIndex;
+        }
         
         rows.forEach(row => {
             const propertyName = row.querySelector('.property-name').textContent.toLowerCase();
             const description = row.cells[2].textContent.toLowerCase();
+            const statusCell = row.querySelector('.status');
+            const status = statusCell ? statusCell.textContent.trim() : '';
             
-            if (propertyName.includes(searchTerm) || description.includes(searchTerm)) {
+            // Vérifier le filtre de statut
+            let matchesStatusFilter = true;
+            if (filterValue.startsWith('status:')) {
+                const filterStatus = filterValue.split(':')[1];
+                matchesStatusFilter = status === filterStatus;
+            }
+            
+            // Vérifier la recherche textuelle
+            const matchesSearch = searchTerm === '' || 
+                propertyName.includes(searchTerm) || 
+                description.includes(searchTerm);
+            
+            // Afficher la ligne si toutes les conditions sont remplies
+            if (matchesModuleFilter && matchesStatusFilter && matchesSearch) {
                 row.style.display = '';
                 hasVisibleRow = true;
             } else {
@@ -588,9 +611,9 @@ function searchProperties() {
         });
         
         // Afficher/masquer le module en fonction des résultats
-        if (searchTerm === '' || hasVisibleRow) {
+        if ((searchTerm === '' && filterValue === 'all') || hasVisibleRow) {
             module.style.display = '';
-            if (searchTerm !== '') {
+            if (searchTerm !== '' || filterValue !== 'all') {
                 // Ouvrir automatiquement les modules avec résultats
                 const header = module.querySelector('.module-header');
                 const tableContainer = module.querySelector('.table-container');
@@ -607,7 +630,17 @@ function searchProperties() {
 document.addEventListener('DOMContentLoaded', () => {
     renderModules(cssModules);
     
+    // Remplir le select avec les modules
+    const filterSelect = document.getElementById('filterSelect');
+    cssModules.forEach((module, index) => {
+        const option = document.createElement('option');
+        option.value = `module:${index}`;
+        option.textContent = module.title;
+        filterSelect.appendChild(option);
+    });
+    
     // Ajouter l'événement de recherche
     const searchInput = document.getElementById('searchInput');
     searchInput.addEventListener('input', searchProperties);
+    filterSelect.addEventListener('change', searchProperties);
 });
